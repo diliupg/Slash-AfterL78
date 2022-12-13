@@ -25,6 +25,7 @@ public:
 
 	virtual void SetupPlayerInputComponent( class UInputComponent* PlayerInputComponent ) override;
 
+	virtual void Jump( ) override;
 
 protected:
 
@@ -38,6 +39,9 @@ protected:
 
 	UPROPERTY( EditAnywhere, Category = Input )
 	TObjectPtr<UInputAction> LookAction;
+
+	UPROPERTY( EditAnywhere, Category = Input )
+	TObjectPtr<UInputAction> JumpAction;
 
 	UPROPERTY( VisibleAnywhere )
 	USpringArmComponent* CameraBoom;
