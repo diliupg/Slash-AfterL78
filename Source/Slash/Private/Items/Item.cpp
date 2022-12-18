@@ -4,6 +4,7 @@
 #include "Items/Item.h"
 #include "Slash/DebugMacros.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SphereComponent.h"
 
 // Sets default values
 AItem::AItem()
@@ -13,6 +14,9 @@ AItem::AItem()
 
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>( TEXT( "ItemMeshComponent" ) );
 	RootComponent = ItemMesh;
+
+	Sphere = CreateDefaultSubobject<USphereComponent>( TEXT( "Sphere" ) );
+	Sphere->SetupAttachment( GetRootComponent( ) );
 }
 
 void AItem::BeginPlay()
