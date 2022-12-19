@@ -23,11 +23,10 @@ void AItem::BeginPlay()
 {
 	Super::BeginPlay();
 
-	int32 AvgInt = Avg<int32>( 5, 3 );
-	UE_LOG( LogTemp, Warning, TEXT( "The average of 5 and 3 is: %d" ), AvgInt );
+	/*int32 AvgInt = Avg<int32>( 5, 3 );
+	UE_LOG( LogTemp, Warning, TEXT( "The average of 5 and 3 is: %d" ), AvgInt );*/
 
-	int32 AvgFloat= Avg<float>( 4.34, 6.67 );
-	UE_LOG( LogTemp, Warning, TEXT( "The average of  4.34 and 6.67 is: %f" ), AvgFloat );
+	Sphere->OnComponentBeginOverlap.AddDynamic( this, &AItem::OnSphereOverlap );
 }
 
 float AItem::TransformedSin( )
@@ -38,6 +37,16 @@ float AItem::TransformedSin( )
 float AItem::TransformedCos( )
 {
 	return Amplitude * FMath::Cos( RunningTime * TimeConstant );
+}
+
+
+void AItem::OnSphereOverlap( UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult )
+{
+	const FString OtherActorName = OtherActor->GetName( );
+	if ( GEngine )
+	{
+		GEngine->AddOnScreenDebugMessage( 1, 30.f, FColor::Red, OtherActorName );
+	}
 }
 
 void AItem::Tick(float DeltaTime)
