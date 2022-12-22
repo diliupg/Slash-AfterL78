@@ -12,7 +12,9 @@
 
 
 // Sets default values
-ASlashCharacter::ASlashCharacter()
+ASlashCharacter::ASlashCharacter():
+	MaxAngle( -45.f ),
+	MinAngle( 45.f )
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -39,6 +41,10 @@ void ASlashCharacter::BeginPlay()
 	APlayerController* PlayerController = Cast<APlayerController>( GetController( ) );
 	if ( PlayerController )
 	{
+		// set camera pitch
+		PlayerController->PlayerCameraManager->ViewPitchMin = MaxAngle; // Use whatever values you want
+		PlayerController->PlayerCameraManager->ViewPitchMax = MinAngle;
+
 		UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>( PlayerController->GetLocalPlayer( ) );
 		if ( Subsystem )
 		{

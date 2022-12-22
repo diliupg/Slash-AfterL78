@@ -21,6 +21,11 @@ public:
 
 	ASlashCharacter();
 
+	UPROPERTY( EditAnywhere )
+	float MaxAngle;
+	UPROPERTY( EditAnywhere )
+	float MinAngle;
+
 	virtual void Tick( float DeltaTime ) override;
 
 	virtual void SetupPlayerInputComponent( class UInputComponent* PlayerInputComponent ) override;
