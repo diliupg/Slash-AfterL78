@@ -11,6 +11,7 @@ class UInputMappingContext;
 class UInputAction;
 class USpringArmComponent;
 class UCameraComponent;
+class AItem;
 
 UCLASS()
 class SLASH_API ASlashCharacter : public ACharacter
@@ -32,6 +33,8 @@ public:
 
 	virtual void Jump( ) override;
 
+	void EKeyPressed( );
+
 protected:
 
 	virtual void BeginPlay() override;
@@ -48,6 +51,15 @@ protected:
 	UPROPERTY( EditAnywhere, Category = Input )
 	TObjectPtr<UInputAction> JumpAction;
 
+	UPROPERTY( EditAnywhere, Category = Input )
+	TObjectPtr<UInputAction> EKeyAction;
+
+	UPROPERTY( EditAnywhere, Category = Input )
+		TObjectPtr<UInputAction> AttackAction;
+
+	UPROPERTY( EditAnywhere, Category = Input )
+		TObjectPtr<UInputAction> DodgeAction;
+
 	UPROPERTY( VisibleAnywhere )
 	USpringArmComponent* CameraBoom;
 
@@ -56,4 +68,13 @@ protected:
 
 	void Move( const FInputActionValue& Value );
 	void Look( const FInputActionValue& Value );
+
+private:
+
+	UPROPERTY(VisibleInstanceOnly)
+	AItem* OverlappingItem;
+
+public:
+
+	FORCEINLINE void SetOverlappingItem( AItem* Item ) { OverlappingItem = Item; }
 };
