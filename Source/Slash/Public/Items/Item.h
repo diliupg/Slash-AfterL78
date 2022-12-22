@@ -19,6 +19,9 @@ public:
 
 	virtual void Tick( float DeltaTime ) override;
 
+	UPROPERTY( VisibleAnywhere, BlueprintReadOnly )
+	bool Equipped = false;
+
 protected:
 
 	virtual void BeginPlay( ) override;
@@ -46,7 +49,9 @@ protected:
 
 	UPROPERTY( VisibleAnywhere, BlueprintReadOnly )
 	UStaticMeshComponent* ItemMesh;
-	 
+	
+	
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true" ))
 	float RunningTime = 10.f;

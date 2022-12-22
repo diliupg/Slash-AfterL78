@@ -65,7 +65,10 @@ void AItem::Tick(float DeltaTime)
 
 {
 	Super::Tick(DeltaTime);
+	if ( !Equipped )
+	{
+		RunningTime += DeltaTime;
+	}
 	
-	RunningTime += DeltaTime;
 }
 
