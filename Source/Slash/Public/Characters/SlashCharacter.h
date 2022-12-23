@@ -13,6 +13,7 @@ class UInputAction;
 class USpringArmComponent;
 class UCameraComponent;
 class AItem;
+class UAnimMontage;
 
 UCLASS()
 class SLASH_API ASlashCharacter : public ACharacter
@@ -35,6 +36,8 @@ public:
 	virtual void Jump( ) override;
 
 	void EKeyPressed( );
+
+	
 
 protected:
 
@@ -70,12 +73,20 @@ protected:
 	void Move( const FInputActionValue& Value );
 	void Look( const FInputActionValue& Value );
 
+	void Attack( );
+
 private:
 
 	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
 
 	UPROPERTY(VisibleInstanceOnly)
 	AItem* OverlappingItem;
+
+/*
+	Animation Montages
+*/
+	UPROPERTY(EditDefaultsOnly, Category = Montages )
+	UAnimMontage* AttackMontage;
 
 public:
 
