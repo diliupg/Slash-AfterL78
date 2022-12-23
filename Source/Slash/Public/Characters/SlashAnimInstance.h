@@ -26,7 +26,7 @@ public:
 	class UCharacterMovementComponent* SlashCharacterMovement;
 
 	UPROPERTY(BlueprintReadOnly, Category = Movement )
-	float DGGroundSpeed;
+	float DGGroundSpeed; 
 
 	UPROPERTY( BlueprintReadOnly, Category = Movement )
 	bool IsFalling;
