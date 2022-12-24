@@ -43,6 +43,16 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	UPROPERTY( VisibleAnywhere )
+		USpringArmComponent* CameraBoom;
+
+	UPROPERTY( VisibleAnywhere )
+		UCameraComponent* ViewCamera;
+
+	/**
+	 * Callback for Input
+	 */
+
 	UPROPERTY( EditAnywhere, Category = Input )
 	TObjectPtr<UInputMappingContext> SlashContext;
 
@@ -64,20 +74,25 @@ protected:
 	UPROPERTY( EditAnywhere, Category = Input )
 		TObjectPtr<UInputAction> DodgeAction;
 
-	UPROPERTY( VisibleAnywhere )
-	USpringArmComponent* CameraBoom;
 
-	UPROPERTY( VisibleAnywhere )
-	UCameraComponent* ViewCamera;
 
 	void Move( const FInputActionValue& Value );
 	void Look( const FInputActionValue& Value );
 
 	void Attack( );
 
+
+
+	/*
+	* Play Montage Functions
+	*/
+
+	void PlayAttackMontage( );
+
 private:
 
 	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
+	EActionState ActionState = EActionState::EAS_Unoccupied;
 
 	UPROPERTY(VisibleInstanceOnly)
 	AItem* OverlappingItem;
