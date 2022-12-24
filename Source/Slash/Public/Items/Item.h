@@ -8,6 +8,12 @@
 
 class USphereComponent;
 
+enum class EItemState : uint8
+{
+	EIS_Hovering,
+	EIS_Equipped
+};
+
 UCLASS()
 class SLASH_API AItem : public AActor
 {
@@ -19,8 +25,6 @@ public:
 
 	virtual void Tick( float DeltaTime ) override;
 
-	UPROPERTY( VisibleAnywhere, BlueprintReadOnly )
-	bool Equipped = false;
 
 protected:
 
@@ -50,13 +54,11 @@ protected:
 	UPROPERTY( VisibleAnywhere, BlueprintReadOnly )
 	UStaticMeshComponent* ItemMesh;
 	
+	EItemState ItemState = EItemState::EIS_Hovering;
 	
-
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true" ))
 	float RunningTime = 10.f;
-
-
 
 	UPROPERTY( VisibleAnywhere )
 	USphereComponent* Sphere;

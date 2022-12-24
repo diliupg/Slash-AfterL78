@@ -59,6 +59,8 @@ void ASlashCharacter::BeginPlay()
 
 void ASlashCharacter::Move( const FInputActionValue& Value )
 {
+	if ( ActionState == EActionState::EAS_Attacking ) return;
+
 	const FVector2D MovementVector = Value.Get<FVector2D>( );
 
 	const FRotator Rotation = Controller->GetControlRotation( );
@@ -73,6 +75,8 @@ void ASlashCharacter::Move( const FInputActionValue& Value )
 
 void ASlashCharacter::Look( const FInputActionValue& Value )
 {
+	if ( ActionState == EActionState::EAS_Attacking ) return;
+
 	const FVector2D LookAxisVector = Value.Get<FVector2D>( );
 
 	AddControllerPitchInput( LookAxisVector.Y );
