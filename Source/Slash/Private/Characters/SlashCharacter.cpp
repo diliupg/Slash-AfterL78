@@ -81,7 +81,7 @@ void ASlashCharacter::SetupPlayerInputComponent( UInputComponent* PlayerInputCom
 
 void ASlashCharacter::Move( const FInputActionValue& Value )
 {
-	if ( ActionState == EActionState::EAS_Attacking ) return;
+	if ( ActionState != EActionState::EAS_Unoccupied ) return;
 
 	const FVector2D MovementVector = Value.Get<FVector2D>( );
 
@@ -96,7 +96,7 @@ void ASlashCharacter::Move( const FInputActionValue& Value )
 
 void ASlashCharacter::Look( const FInputActionValue& Value )
 {
-	if ( ActionState == EActionState::EAS_Attacking ) return;
+	if ( ActionState != EActionState::EAS_Unoccupied ) return; 
 
 	const FVector2D LookAxisVector = Value.Get<FVector2D>( );
 
@@ -168,11 +168,13 @@ void ASlashCharacter::EKeyPressed( )
 		{
 			PlayEqipMontage( FName("Disarm") );
 			CharacterState = ECharacterState::ECS_Unequipped;
+			ActionState = EActionState::EAS_EquippingWeapon;
 		}
 		else if ( CanArm( ) )
 		{
 			PlayEqipMontage( FName("Arm") );
 			CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
+			ActionState = EActionState::EAS_EquippingWeapon;
 		}
 	} 
 }
@@ -190,8 +192,29 @@ bool ASlashCharacter::CanArm( )
 		EquippedWeapon ;
 }
 
-void ASlashCharacter::PlayEqipMontage( FName SectionName )
+void ASlashCharacter::Disarm( ) // attach sword to spine socket
 {
+	if ( EquippedWeapon )
+	{
+		EquippedWeapon->AttachMeshToSocket( GetMesh( ), FName( "SpineSocket" ) );
+	}
+}
+
+void ASlashCharacter::Arm( ) // attach sword to hand socket
+{
+	if ( EquippedWeapon )
+	{
+		EquippedWeapon->AttachMeshToSocket( GetMesh( ), FName( "RightHandSocket" ) );
+	}
+}
+
+void ASlashCharacter::FinishEquipping( )
+{
+	ActionState = EActionState::EAS_Unoccupied;
+}
+
+void ASlashCharacter::PlayEqipMontage( FName SectionName )
+{ 
 	UAnimInstance* AnimInstance = GetMesh( )->GetAnimInstance( );
 	if ( AnimInstance && EquipMontage )
 	{
