@@ -118,7 +118,7 @@ private:
 	UAnimMontage* AttackMontage;
 
 	UPROPERTY( EditDefaultsOnly, Category = Montages )
-	UAnimMontage* EquipMontage;
+	UAnimMontage* EquipMontage; // Arm and Disarm
 
 public:
 

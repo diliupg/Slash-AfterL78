@@ -41,6 +41,7 @@ void ASlashCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// my code to limit camera pitch
 	APlayerController* PlayerController = Cast<APlayerController>( GetController( ) );
 	if ( PlayerController )
 	{
@@ -56,6 +57,27 @@ void ASlashCharacter::BeginPlay()
 	} 
 }
 
+void ASlashCharacter::Tick( float DeltaTime )
+{
+	Super::Tick( DeltaTime );
+
+}
+
+// Called to bind functionality to input
+void ASlashCharacter::SetupPlayerInputComponent( UInputComponent* PlayerInputComponent )
+{
+	Super::SetupPlayerInputComponent( PlayerInputComponent );
+
+	if ( UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>( PlayerInputComponent ) )
+	{
+		EnhancedInputComponent->BindAction( MovementAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Move );
+		EnhancedInputComponent->BindAction( LookAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Look );
+		EnhancedInputComponent->BindAction( JumpAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Jump );
+		EnhancedInputComponent->BindAction( EKeyAction, ETriggerEvent::Triggered, this, &ASlashCharacter::EKeyPressed );
+		EnhancedInputComponent->BindAction( AttackAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Attack );
+		//EnhancedInputComponent->BindAction( DodgeAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Dodge );
+	}
+}
 
 void ASlashCharacter::Move( const FInputActionValue& Value )
 {
@@ -70,7 +92,6 @@ void ASlashCharacter::Move( const FInputActionValue& Value )
 	AddMovementInput( ForwardDirection, MovementVector.Y );
 	const FVector RightDirection = FRotationMatrix( YawRotation ).GetUnitAxis( EAxis::Y );
 	AddMovementInput( RightDirection, MovementVector.X );
-
 }
 
 void ASlashCharacter::Look( const FInputActionValue& Value )
@@ -83,6 +104,11 @@ void ASlashCharacter::Look( const FInputActionValue& Value )
 	AddControllerYawInput( LookAxisVector.X );
 }
 
+void ASlashCharacter::Jump( )
+{
+	Super::Jump( );
+}
+	 
 void ASlashCharacter::Attack( )
 {	
 	if ( CanAttack())
@@ -96,6 +122,11 @@ bool ASlashCharacter::CanAttack( )
 {
 	return ActionState == EActionState::EAS_Unoccupied &&
 		CharacterState != ECharacterState::ECS_Unequipped;
+}
+
+void ASlashCharacter::AttackEnd( )
+{
+	ActionState = EActionState::EAS_Unoccupied;
 }
 
 void ASlashCharacter::PlayAttackMontage( )
@@ -121,6 +152,44 @@ void ASlashCharacter::PlayAttackMontage( )
 	}
 }
 
+void ASlashCharacter::EKeyPressed( )
+{
+	AWeapon* OverlappingWeapon = Cast<AWeapon>( OverlappingItem );
+	if ( OverlappingWeapon )
+	{
+		OverlappingWeapon->Equip( GetMesh( ), FName( "RightHandSocket" ) );
+		CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
+		OverlappingItem = nullptr;
+		EquippedWeapon = OverlappingWeapon;
+	}
+	else
+	{
+		if ( CanDisarm() )
+		{
+			PlayEqipMontage( FName("Disarm") );
+			CharacterState = ECharacterState::ECS_Unequipped;
+		}
+		else if ( CanArm( ) )
+		{
+			PlayEqipMontage( FName("Arm") );
+			CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
+		}
+	} 
+}
+
+bool ASlashCharacter::CanDisarm( )
+{
+	return ActionState == EActionState::EAS_Unoccupied &&
+		CharacterState != ECharacterState::ECS_Unequipped;
+}
+
+bool ASlashCharacter::CanArm( )
+{
+	return ActionState == EActionState::EAS_Unoccupied &&
+		CharacterState == ECharacterState::ECS_Unequipped &&
+		EquippedWeapon ;
+}
+
 void ASlashCharacter::PlayEqipMontage( FName SectionName )
 {
 	UAnimInstance* AnimInstance = GetMesh( )->GetAnimInstance( );
@@ -130,74 +199,3 @@ void ASlashCharacter::PlayEqipMontage( FName SectionName )
 		AnimInstance->Montage_JumpToSection( SectionName, EquipMontage );
 	}
 }
-
-void ASlashCharacter::AttackEnd( )
-{
-	ActionState = EActionState::EAS_Unoccupied;
-}
-
-void ASlashCharacter::Jump( )
-{
-	Super::Jump( );
-}
-
-void ASlashCharacter::EKeyPressed( )
-{
-	AWeapon* OverlappingWeapon = Cast<AWeapon>( OverlappingItem );
-	if ( OverlappingItem )
-	{
-		OverlappingWeapon->Equip( GetMesh( ), FName( "RightHandSocket" ) );
-		CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
-		EquippedWeapon = OverlappingWeapon;
-	}
-	else
-	{
-		if ( CanDisarm() )
-		{
-			PlayEqipMontage( "Disarm" );
-			CharacterState = ECharacterState::ECS_Unequipped;
-		}
-		if ( CanArm( ) )
-		{
-			PlayEqipMontage( "Arm" );
-			CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
-		}
-	}
-}
-
-bool ASlashCharacter::CanDisarm( )
-{
-	return(ActionState == EActionState::EAS_Unoccupied &&
-		CharacterState != ECharacterState::ECS_Unequipped);
-}
-
-bool ASlashCharacter::CanArm( )
-{
-	return (ActionState == EActionState::EAS_Unoccupied &&
-		CharacterState == ECharacterState::ECS_Unequipped &&
-		EquippedWeapon);
-}
-
-void ASlashCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
-// Called to bind functionality to input
-void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	if ( UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>( PlayerInputComponent ) )
-	{
-		EnhancedInputComponent->BindAction( MovementAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Move );
-		EnhancedInputComponent->BindAction( LookAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Look );
-		EnhancedInputComponent->BindAction( JumpAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Jump );
-		EnhancedInputComponent->BindAction( EKeyAction, ETriggerEvent::Triggered, this, &ASlashCharacter::EKeyPressed );
-		EnhancedInputComponent->BindAction( AttackAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Attack );
-		//EnhancedInputComponent->BindAction( DodgeAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Dodge );
-	}
-}
-
-
