@@ -38,7 +38,8 @@ public:
 
 	void EKeyPressed( );
 
-	
+	UFUNCTION(BlueprintCallable )
+	void SetWeaponCollisionEnabled( ECollisionEnabled::Type CollisionEnabled );
 
 protected:
 

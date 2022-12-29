@@ -12,6 +12,9 @@
 #include "Items/Item.h"
 #include "Items/Weapons/Weapon.h"
 #include "Animation/AnimMontage.h"
+#include "Components/BoxComponent.h"
+
+
 
 
 // Sets default values
@@ -177,6 +180,14 @@ void ASlashCharacter::EKeyPressed( )
 			ActionState = EActionState::EAS_EquippingWeapon;
 		}
 	} 
+}
+
+void ASlashCharacter::SetWeaponCollisionEnabled( ECollisionEnabled::Type CollisionEnabled )
+{
+	if ( EquippedWeapon && EquippedWeapon->GetWeaponBox())
+	{
+		EquippedWeapon->GetWeaponBox( )->SetCollisionEnabled( CollisionEnabled );
+	}
 }
 
 bool ASlashCharacter::CanDisarm( )
