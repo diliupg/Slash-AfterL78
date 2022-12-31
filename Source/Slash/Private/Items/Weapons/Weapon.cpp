@@ -7,6 +7,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Interfaces/HitInterface.h"
 
 AWeapon::AWeapon( )
 {
@@ -66,7 +67,7 @@ void AWeapon::OnSphereEndOverlap( UPrimitiveComponent* OverlappedComponent, AAct
 void AWeapon::OnBoxOverlap( UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult )
 {
 	const FVector Start = BoxTraceStart->GetComponentLocation( );
-	const FVector End = BoxTraceEnd->GetComponentLocation( );
+  	const FVector End = BoxTraceEnd->GetComponentLocation( );
 
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add( this );
@@ -84,5 +85,13 @@ void AWeapon::OnBoxOverlap( UPrimitiveComponent* OverlappedComponent, AActor* Ot
 		EDrawDebugTrace::ForDuration,
 		BoxHit,
 		true 
-		);
+	);
+	if ( BoxHit.GetActor( ) )
+	{
+		IHitInterface* HitInterface = Cast<IHitInterface>( BoxHit.GetActor( ) );
+		if ( HitInterface )
+		{
+			HitInterface->GetHit( BoxHit.ImpactPoint );
+		}
+	}
 }
