@@ -224,7 +224,7 @@ void ASlashCharacter::FinishEquipping( )
 	ActionState = EActionState::EAS_Unoccupied;
 }
 
-void ASlashCharacter::PlayEqipMontage( FName SectionName )
+void ASlashCharacter::PlayEqipMontage( const FName SectionName )
 { 
 	UAnimInstance* AnimInstance = GetMesh( )->GetAnimInstance( );
 	if ( AnimInstance && EquipMontage )

@@ -76,14 +76,10 @@ protected:
 	UPROPERTY( EditAnywhere, Category = Input )
 		TObjectPtr<UInputAction> DodgeAction;
 
-
-
 	void Move( const FInputActionValue& Value );
 	void Look( const FInputActionValue& Value );
 
 	void Attack( );
-
-
 
 	/*
 	* Play Montage Functions
@@ -95,7 +91,7 @@ protected:
 	void AttackEnd( );
 	bool CanAttack( );
 
-	void PlayEqipMontage(FName SectionName);
+	void PlayEqipMontage(const FName SectionName);
 	bool CanDisarm();
 	bool CanArm( );
 
