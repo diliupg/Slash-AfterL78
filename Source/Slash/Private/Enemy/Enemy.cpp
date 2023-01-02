@@ -49,7 +49,7 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void AEnemy::GetHit( const FVector& ImpactPoint ) 
 {
 	DRAW_SPHERE_COLOR( ImpactPoint, FColor::Orange);
-	PlayHitReactMontage( FName( "FromLeft" ) ); 
+	
 	const FVector Forward = GetActorForwardVector( );
 	// lower impact point to the enemy's ActorLocation.Z
 	const FVector ImpactLowered( ImpactPoint.X, ImpactPoint.Y, GetActorLocation( ).Z );
@@ -69,6 +69,23 @@ void AEnemy::GetHit( const FVector& ImpactPoint )
 	{
 		Theta *= -1.f;
 	}
+	FName Section( "FromBack" );
+
+	if ( Theta >= -45.f && Theta < 45.f )
+	{
+		Section = ( "FromFront" );
+	}
+	else if ( Theta >= -135.f && Theta < -45.f )
+	{
+		Section = ("FromLeft");
+	}
+	else if ( Theta >= 45.f && Theta < 135.f )
+	{
+		Section = ("FromRight");
+	}
+
+	PlayHitReactMontage( Section );
+
 	UKismetSystemLibrary::DrawDebugArrow( this, GetActorLocation( ), GetActorLocation( ) + CrossProduct * 100.f, 5.f, FColor::Blue, 5.f );
 	
 	if ( GEngine )
