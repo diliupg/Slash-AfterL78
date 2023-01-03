@@ -6,6 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Slash/DebugMacros.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 AEnemy::AEnemy()
 {
@@ -50,10 +51,24 @@ void AEnemy::GetHit( const FVector& ImpactPoint )
 {
 	DRAW_SPHERE_COLOR( ImpactPoint, FColor::Orange);
 	
+	DirectionalHitReact( ImpactPoint );
+
+	if ( HitSound )
+	{
+		UGameplayStatics::PlaySoundAtLocation(
+			this,
+			HitSound,
+			ImpactPoint
+		);
+	}
+}
+
+void AEnemy::DirectionalHitReact( const FVector& ImpactPoint )
+{
 	const FVector Forward = GetActorForwardVector( );
 	// lower impact point to the enemy's ActorLocation.Z
 	const FVector ImpactLowered( ImpactPoint.X, ImpactPoint.Y, GetActorLocation( ).Z );
-	const FVector ToHit = (ImpactLowered - GetActorLocation( )).GetSafeNormal(); // normalized 
+	const FVector ToHit = (ImpactLowered - GetActorLocation( )).GetSafeNormal( ); // normalized 
 
 	//Forward * ToHit = |Forward||ToHit|*cos(theta)
 	// |Forward| = 1, |ToHit| = 1, so Forward * ToHit = cos(theta)
@@ -73,7 +88,7 @@ void AEnemy::GetHit( const FVector& ImpactPoint )
 
 	if ( Theta >= -45.f && Theta < 45.f )
 	{
-		Section = ( "FromFront" );
+		Section = ("FromFront");
 	}
 	else if ( Theta >= -135.f && Theta < -45.f )
 	{
@@ -87,12 +102,12 @@ void AEnemy::GetHit( const FVector& ImpactPoint )
 	PlayHitReactMontage( Section );
 
 	UKismetSystemLibrary::DrawDebugArrow( this, GetActorLocation( ), GetActorLocation( ) + CrossProduct * 100.f, 5.f, FColor::Blue, 5.f );
-	
+
 	if ( GEngine )
 	{
 		GEngine->AddOnScreenDebugMessage( 1, 5.f, FColor::Green, FString::Printf( TEXT( "Theta: %f" ), Theta ) );
 
 	}
 	UKismetSystemLibrary::DrawDebugArrow( this, GetActorLocation( ), GetActorLocation( ) + Forward * 60.f, 5.f, FColor::Red, 5.f );
-	UKismetSystemLibrary::DrawDebugArrow( this, GetActorLocation( ), GetActorLocation( ) + ToHit * 60.f, 5.f, FColor::Green, 5.f);
+	UKismetSystemLibrary::DrawDebugArrow( this, GetActorLocation( ), GetActorLocation( ) + ToHit * 60.f, 5.f, FColor::Green, 5.f );
 }
