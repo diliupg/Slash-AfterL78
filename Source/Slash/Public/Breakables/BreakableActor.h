@@ -37,4 +37,5 @@ private:
 	UPROPERTY( EditAnywhere, Category = BreakableProperties )
 	TArray<TSubclassOf<class ATreasure>> TreasureClasses;
 
+	bool bBroken = false; 
 };
