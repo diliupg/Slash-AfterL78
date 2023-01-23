@@ -103,7 +103,7 @@ protected:
 
 	UFUNCTION( BlueprintCallable )
 	void FinishEquipping( );
-
+	 
 private:
 
 	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
