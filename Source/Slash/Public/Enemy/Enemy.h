@@ -8,6 +8,7 @@
 #include "Enemy.generated.h"
 
 class UAnimMontage;
+class UAttributeComponent;
  
 UCLASS()
 class SLASH_API AEnemy : public ACharacter, public IHitInterface
@@ -27,6 +28,9 @@ public:
 	void DirectionalHitReact( const FVector& ImpactPoint );
 
 private:
+
+	UPROPERTY(VisibleAnywhere  )
+	UAttributeComponent* Attributes;
 
 	/*
 	Animation Montages
