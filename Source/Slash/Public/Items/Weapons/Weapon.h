@@ -17,7 +17,7 @@ public:
 
 	AWeapon( );
 
-	void Equip( USceneComponent* InParent, FName SocketName );
+	void Equip( USceneComponent* InParent, FName SocketName, AActor* NewOwner, APawn* NewInstigator);
 
 	void AttachMeshToSocket( USceneComponent* InParent, FName SocketName );
 
@@ -48,6 +48,9 @@ private:
 
 	UPROPERTY( VisibleAnywhere )
 	USceneComponent* BoxTraceEnd;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties" )
+	float Damage = 20.f;
 
 public:
 	FORCEINLINE UBoxComponent* GetWeaponBox( ) const { return WeaponBox; }

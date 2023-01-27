@@ -31,8 +31,10 @@ void AWeapon::BeginPlay( )
 	WeaponBox->OnComponentBeginOverlap.AddDynamic( this, &AWeapon::OnBoxOverlap );
 }
 
-void AWeapon::Equip( USceneComponent* InParent, FName SocketName )
+void AWeapon::Equip( USceneComponent* InParent, FName SocketName, AActor* NewOwner, APawn* NewInstigator )
 {
+	SetOwner( NewOwner );
+	SetInstigator( NewInstigator );
 	AttachMeshToSocket( InParent, SocketName );
 	ItemState = EItemState::EIS_Equipped;
 	if ( EquipSound )
@@ -107,5 +109,13 @@ void AWeapon::OnBoxOverlap( UPrimitiveComponent* OverlappedComponent, AActor* Ot
 		IgnoreActors.AddUnique( BoxHit.GetActor( ) );
 		
 		 CreateFields( BoxHit.ImpactPoint );
+
+		 UGameplayStatics::ApplyDamage(
+			 BoxHit.GetActor( ),
+			 Damage,
+			 GetInstigator( )->GetController( ),
+			 this,
+			 UDamageType::StaticClass()
+			 );
 	}
 }
