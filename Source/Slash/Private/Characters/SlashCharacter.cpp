@@ -44,7 +44,9 @@ void ASlashCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// my code to limit camera pitch
+	Tags.Add( FName( "SlashCharacter" ) );
+
+	// == my code to limit camera pitch ==
 	APlayerController* PlayerController = Cast<APlayerController>( GetController( ) );
 	if ( PlayerController )
 	{
@@ -57,7 +59,8 @@ void ASlashCharacter::BeginPlay()
 		{
 			Subsystem->AddMappingContext( SlashContext, 0 );
 		}
-	} 
+	}
+	// =====================================
 }
 
 void ASlashCharacter::Tick( float DeltaTime )

@@ -155,7 +155,17 @@ AActor* AEnemy::ChoosePatrolTarget( )
 
 void AEnemy::PawnSeen( APawn* SeenPawn )
 {
-	UE_LOG( LogTemp, Warning, TEXT( "Pawn Seen" ) );
+	if ( EnemyState == EEnemyState::EES_Chasing ) return;
+
+	if ( SeenPawn->ActorHasTag( FName( "SlashCharacter" ) ) )
+	{
+		EnemyState = EEnemyState::EES_Chasing;
+		GetWorldTimerManager( ).ClearTimer( PatrolTimer );
+		GetCharacterMovement( )->MaxWalkSpeed = RunSpeed;
+		CombatTarget = SeenPawn;
+		MoveToTarget( CombatTarget );
+		UE_LOG( LogTemp, Warning, TEXT( "Seen the pawn, now chasing" ) );
+	}
 }
 
 void AEnemy::PlayHitReactMontage( const FName SectionName )
@@ -172,9 +182,17 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	CheckCombatTarget( );
+	if ( EnemyState > EEnemyState::EES_Patrolling )
+	{
+		CheckCombatTarget( );
+	}
+	else
+	{
+		CheckPatrolTarget( );
+	}
 	
-	CheckPatrolTarget( );
+	
+	
 }
 
 void AEnemy::CheckPatrolTarget( )
@@ -190,7 +208,7 @@ void AEnemy::CheckPatrolTarget( )
 
 void AEnemy::CheckCombatTarget( )
 {
-	if ( InTargetRange( CombatTarget, CombatRadius ) )
+	if ( !InTargetRange( CombatTarget, CombatRadius ) )
 	{
 		CombatTarget = nullptr;
 		if ( HealthBarWidget )

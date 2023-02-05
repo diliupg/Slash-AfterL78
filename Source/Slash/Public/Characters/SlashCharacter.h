@@ -46,10 +46,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY( VisibleAnywhere )
-		USpringArmComponent* CameraBoom;
+	USpringArmComponent* CameraBoom;
 
 	UPROPERTY( VisibleAnywhere )
-		UCameraComponent* ViewCamera;
+	UCameraComponent* ViewCamera;
 
 	/**
 	 * Callback for Input
@@ -71,10 +71,10 @@ protected:
 	TObjectPtr<UInputAction> EKeyAction;
 
 	UPROPERTY( EditAnywhere, Category = Input )
-		TObjectPtr<UInputAction> AttackAction;
+	TObjectPtr<UInputAction> AttackAction;
 
 	UPROPERTY( EditAnywhere, Category = Input )
-		TObjectPtr<UInputAction> DodgeAction;
+	TObjectPtr<UInputAction> DodgeAction;
 
 	void Move( const FInputActionValue& Value );
 	void Look( const FInputActionValue& Value );

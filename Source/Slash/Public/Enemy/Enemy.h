@@ -69,7 +69,7 @@ private:
 	AActor* CombatTarget;
 
 	UPROPERTY(EditAnywhere )
-	double CombatRadius = 500.f;
+	double CombatRadius = 750.f;
 
 	/*
 	* Navigation
@@ -95,6 +95,12 @@ private:
 	float WaitMin = 5.f;
 	UPROPERTY( EditAnywhere, Category = AINavigation )
 	float WaitMax = 10.f;
+	UPROPERTY( EditAnywhere, Category = AINavigation )
+	float WalkSpeed = 150.f;
+	UPROPERTY( EditAnywhere, Category = AINavigation )
+	float RunSpeed = 300.f;
+	
+	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 
 protected:
 
