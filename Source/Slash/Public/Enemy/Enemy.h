@@ -11,6 +11,7 @@
 class UAnimMontage;
 class UAttributeComponent;
 class UHealthBarComponent;
+class UPawnSensingComponent;
  
 UCLASS()
 class SLASH_API AEnemy : public ACharacter, public IHitInterface
@@ -36,12 +37,19 @@ public:
 	virtual float TakeDamage( float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser ) override;
 
 private:
+	/*
+	* COMPONENTS
+	*/
 
 	UPROPERTY(VisibleAnywhere )
 	UAttributeComponent* Attributes;
 
 	UPROPERTY( VisibleAnywhere )
 	UHealthBarComponent* HealthBarWidget;
+
+	UPROPERTY( VisibleAnywhere ) 
+	UPawnSensingComponent* PawnSensing;
+	
 	/*
 	Animation Montages
 */
@@ -99,6 +107,9 @@ protected:
 	void MoveToTarget( AActor* Target );
 
 	AActor* ChoosePatrolTarget( );
+
+	UFUNCTION()
+	void PawnSeen( APawn* SeenPawn );
 
 	/*
 	* Play Montage Functions
