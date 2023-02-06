@@ -132,8 +132,8 @@ bool AEnemy::InTargetRange( AActor* Target, double Radius )
 {
 	if ( Target == nullptr ) return false;
 	const double DistanceToTarget = (Target->GetActorLocation( ) - GetActorLocation( )).Size( );
-	DRAW_SPHERE_SingleFrame( GetActorLocation( ) );
-	DRAW_SPHERE_SingleFrame( Target->GetActorLocation( ) );
+	//DRAW_SPHERE_SingleFrame( GetActorLocation( ) );
+	//DRAW_SPHERE_SingleFrame( Target->GetActorLocation( ) );
 
 	return DistanceToTarget <= Radius;
 }
@@ -289,7 +289,9 @@ float AEnemy::TakeDamage( float DamageAmount, struct FDamageEvent const& DamageE
 		HealthBarWidget->SetHealthPercent( Attributes->GetHealthPercent() );
 	}
 	CombatTarget = EventInstigator->GetPawn( );
-
+	EnemyState = EEnemyState::EES_Chasing;
+	GetCharacterMovement( )->MaxWalkSpeed = 300.f;
+	MoveToTarget( CombatTarget );
 	return DamageAmount;
 }
 
