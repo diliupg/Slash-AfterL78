@@ -113,16 +113,6 @@ void AEnemy::Die( )
 	SetLifeSpan( 3.f );
 }
 
-bool AEnemy::InTargetRange( AActor* Target, double Radius )
-{
-	if ( Target == nullptr ) return false;
-	const double DistanceToTarget = (Target->GetActorLocation( ) - GetActorLocation( )).Size( );
-	DRAW_SPHERE_SingleFrame( GetActorLocation( ) );
-	DRAW_SPHERE_SingleFrame( Target->GetActorLocation( ) );
-
-	return DistanceToTarget <= Radius;
-}
-
 void AEnemy::MoveToTarget( AActor* Target )
 {
 	if ( EnemyController == nullptr || Target == nullptr ) return;
@@ -189,10 +179,17 @@ void AEnemy::Tick(float DeltaTime)
 	else
 	{
 		CheckPatrolTarget( );
-	}
-	
-	
-	
+	}	
+}
+
+bool AEnemy::InTargetRange( AActor* Target, double Radius )
+{
+	if ( Target == nullptr ) return false;
+	const double DistanceToTarget = (Target->GetActorLocation( ) - GetActorLocation( )).Size( );
+	DRAW_SPHERE_SingleFrame( GetActorLocation( ) );
+	DRAW_SPHERE_SingleFrame( Target->GetActorLocation( ) );
+
+	return DistanceToTarget <= Radius;
 }
 
 void AEnemy::CheckPatrolTarget( )
@@ -200,9 +197,8 @@ void AEnemy::CheckPatrolTarget( )
 	if ( InTargetRange( PatrolTarget, PatrolRadius ) )
 	{
 		PatrolTarget = ChoosePatrolTarget( );
-		const float WaitTime = FMath::RandRange( WaitMax, WaitMin );
+		const float WaitTime = FMath::RandRange( WaitMin, WaitMax );
 		GetWorldTimerManager( ).SetTimer( PatrolTimer, this, &AEnemy::PatrolTimerFinished, WaitTime );
-
 	}
 }
 
@@ -210,11 +206,15 @@ void AEnemy::CheckCombatTarget( )
 {
 	if ( !InTargetRange( CombatTarget, CombatRadius ) )
 	{
+		// Outside Combat radius, lose interest
 		CombatTarget = nullptr;
 		if ( HealthBarWidget )
 		{
 			HealthBarWidget->SetVisibility( false );
 		}
+		EnemyState = EEnemyState::EES_Patrolling;
+		GetCharacterMovement( )->MaxWalkSpeed = 125.f;
+		MoveToTarget( PatrolTarget );
 	}
 }
 
