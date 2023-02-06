@@ -38,11 +38,6 @@ AEnemy::AEnemy()
 	PawnSensing->SetPeripheralVisionAngle( 45.f );
 }
 
-void AEnemy::PatrolTimerFinished( )
-{
-	MoveToTarget( PatrolTarget );
-}
-
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
@@ -62,65 +57,23 @@ void AEnemy::BeginPlay()
 	}
 }
 
-void AEnemy::Die( )
+void AEnemy::Tick( float DeltaTime )
 {
-	UAnimInstance* AnimInstance = GetMesh( )->GetAnimInstance( );
-	if ( AnimInstance && DeathMontage )
+	Super::Tick( DeltaTime );
+
+	if ( EnemyState > EEnemyState::EES_Patrolling )
 	{
-		AnimInstance->Montage_Play( DeathMontage );
-
-		const int32 Selection = FMath::RandRange( 0, 5 );
-		FName SectionName = FName( );
-		switch ( Selection )
-		{
-		case 0:
-			SectionName = FName( "Death1" );
-			DeathPose = EDeathPose::EDP_Death1;
-			break;
-		case 1:
-			SectionName = FName( "Death2" );
-			DeathPose = EDeathPose::EDP_Death2;
-			break;
-		case 2:
-			SectionName = FName( "Death3" );
-			DeathPose = EDeathPose::EDP_Death3;
-			break;
-		case 3:
-			SectionName = FName( "Death4" );
-			DeathPose = EDeathPose::EDP_Death4;
-			break;
-		case 4:
-			SectionName = FName( "Death5" );
-			DeathPose = EDeathPose::EDP_Death5;
-			break;
-		case 5:
-			SectionName = FName( "Death6" );
-			DeathPose = EDeathPose::EDP_Death6;
-			break;
-		default:
-			break;
-		}
-
-		AnimInstance->Montage_JumpToSection( SectionName, DeathMontage );
+		CheckCombatTarget( );
 	}
-
-	if ( HealthBarWidget )
+	else
 	{
-		HealthBarWidget->SetVisibility( false );
+		CheckPatrolTarget( );
 	}
-
-	GetCapsuleComponent( )->SetCollisionEnabled( ECollisionEnabled::NoCollision );
-	SetLifeSpan( 3.f );
 }
 
-void AEnemy::MoveToTarget( AActor* Target )
+void AEnemy::PatrolTimerFinished( )
 {
-	if ( EnemyController == nullptr || Target == nullptr ) return;
-	FAIMoveRequest MoveRequest;
-	MoveRequest.SetGoalActor( Target );
-	MoveRequest.SetAcceptanceRadius( 15.f );
-
-	EnemyController->MoveTo( MoveRequest );
+	MoveToTarget( PatrolTarget );
 }
 
 AActor* AEnemy::ChoosePatrolTarget( )
@@ -138,48 +91,41 @@ AActor* AEnemy::ChoosePatrolTarget( )
 	if ( NumPatrolTargets > 0 )
 	{
 		const int32 TargetSelection = FMath::RandRange( 0, NumPatrolTargets - 1 );
-		return PatrolTargets[TargetSelection];	
+		return PatrolTargets[TargetSelection];
 	}
 	return nullptr;
 }
 
+void AEnemy::MoveToTarget( AActor* Target )
+{
+	if ( EnemyController == nullptr || Target == nullptr ) return;
+	FAIMoveRequest MoveRequest;
+	MoveRequest.SetGoalActor( Target );
+	MoveRequest.SetAcceptanceRadius( 15.f );
+
+	EnemyController->MoveTo( MoveRequest );
+}
+
+/*
+*  enemy sees the player and starts chasing
+*/
 void AEnemy::PawnSeen( APawn* SeenPawn )
 {
 	if ( EnemyState == EEnemyState::EES_Chasing ) return;
 
 	if ( SeenPawn->ActorHasTag( FName( "SlashCharacter" ) ) )
 	{
-		EnemyState = EEnemyState::EES_Chasing;
 		GetWorldTimerManager( ).ClearTimer( PatrolTimer );
 		GetCharacterMovement( )->MaxWalkSpeed = RunSpeed;
 		CombatTarget = SeenPawn;
-		MoveToTarget( CombatTarget );
-		UE_LOG( LogTemp, Warning, TEXT( "Seen the pawn, now chasing" ) );
-	}
-}
 
-void AEnemy::PlayHitReactMontage( const FName SectionName )
-{
-	UAnimInstance* AnimInstance = GetMesh( )->GetAnimInstance( );
-	if ( AnimInstance && HitReactMontage )
-	{
-		AnimInstance->Montage_Play( HitReactMontage );
-		AnimInstance->Montage_JumpToSection( SectionName, HitReactMontage );
+		if ( EnemyState != EEnemyState::EES_Attacking )
+		{
+			EnemyState = EEnemyState::EES_Chasing;
+			MoveToTarget( CombatTarget );
+			UE_LOG( LogTemp, Warning, TEXT( "Pawn seen, chase player" ) );
+		}	
 	}
-}
-
-void AEnemy::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	if ( EnemyState > EEnemyState::EES_Patrolling )
-	{
-		CheckCombatTarget( );
-	}
-	else
-	{
-		CheckPatrolTarget( );
-	}	
 }
 
 bool AEnemy::InTargetRange( AActor* Target, double Radius )
@@ -215,6 +161,22 @@ void AEnemy::CheckCombatTarget( )
 		EnemyState = EEnemyState::EES_Patrolling;
 		GetCharacterMovement( )->MaxWalkSpeed = 125.f;
 		MoveToTarget( PatrolTarget );
+		UE_LOG( LogTemp, Warning, TEXT( "Lose Interest" ) );
+	}
+	else if ( !InTargetRange( CombatTarget, AttackRadius ) && EnemyState != EEnemyState::EES_Chasing )
+	{
+		// outside attack range, chase player
+		EnemyState = EEnemyState::EES_Chasing;
+		GetCharacterMovement( )->MaxWalkSpeed = 300.f;
+		MoveToTarget( CombatTarget );
+		UE_LOG( LogTemp, Warning, TEXT( "Chase Player" ) );
+	}
+	else if ( InTargetRange( CombatTarget, AttackRadius ) && EnemyState != EEnemyState::EES_Attacking )
+	{
+		// inside attack range, attack player
+		EnemyState = EEnemyState::EES_Attacking;
+		// TODO Attack Montage
+		UE_LOG( LogTemp, Warning, TEXT( "Attack Player" ) );
 	}
 }
 
@@ -254,7 +216,6 @@ void AEnemy::GetHit_Implementation( const FVector& ImpactPoint )
 			GetWorld( ),
 			HitParticles,
 			ImpactPoint
-
 		);
 	}
 }
@@ -310,6 +271,16 @@ void AEnemy::DirectionalHitReact( const FVector& ImpactPoint )
 	*/
 }
 
+void AEnemy::PlayHitReactMontage( const FName SectionName )
+{
+	UAnimInstance* AnimInstance = GetMesh( )->GetAnimInstance( );
+	if ( AnimInstance && HitReactMontage )
+	{
+		AnimInstance->Montage_Play( HitReactMontage );
+		AnimInstance->Montage_JumpToSection( SectionName, HitReactMontage );
+	}
+}
+
 float AEnemy::TakeDamage( float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser )
 {
 	if ( Attributes && HealthBarWidget )
@@ -320,4 +291,55 @@ float AEnemy::TakeDamage( float DamageAmount, struct FDamageEvent const& DamageE
 	CombatTarget = EventInstigator->GetPawn( );
 
 	return DamageAmount;
+}
+
+void AEnemy::Die( )
+{
+	UAnimInstance* AnimInstance = GetMesh( )->GetAnimInstance( );
+	if ( AnimInstance && DeathMontage )
+	{
+		AnimInstance->Montage_Play( DeathMontage );
+
+		const int32 Selection = FMath::RandRange( 0, 5 );
+		FName SectionName = FName( );
+		switch ( Selection )
+		{
+		case 0:
+			SectionName = FName( "Death1" );
+			DeathPose = EDeathPose::EDP_Death1;
+			break;
+		case 1:
+			SectionName = FName( "Death2" );
+			DeathPose = EDeathPose::EDP_Death2;
+			break;
+		case 2:
+			SectionName = FName( "Death3" );
+			DeathPose = EDeathPose::EDP_Death3;
+			break;
+		case 3:
+			SectionName = FName( "Death4" );
+			DeathPose = EDeathPose::EDP_Death4;
+			break;
+		case 4:
+			SectionName = FName( "Death5" );
+			DeathPose = EDeathPose::EDP_Death5;
+			break;
+		case 5:
+			SectionName = FName( "Death6" );
+			DeathPose = EDeathPose::EDP_Death6;
+			break;
+		default:
+			break;
+		}
+
+		AnimInstance->Montage_JumpToSection( SectionName, DeathMontage );
+	}
+
+	if ( HealthBarWidget )
+	{
+		HealthBarWidget->SetVisibility( false );
+	}
+
+	GetCapsuleComponent( )->SetCollisionEnabled( ECollisionEnabled::NoCollision );
+	SetLifeSpan( 3.f );
 }

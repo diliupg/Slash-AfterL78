@@ -71,6 +71,9 @@ private:
 	UPROPERTY(EditAnywhere )
 	double CombatRadius = 750.f;
 
+	UPROPERTY( EditAnywhere )
+	double AttackRadius = 200.f;
+
 	/*
 	* Navigation
 	*/
@@ -86,7 +89,7 @@ private:
 	TArray<AActor*> PatrolTargets;
 
 	UPROPERTY( EditAnywhere )
-		double PatrolRadius = 200.f;
+	double PatrolRadius = 200.f;
 
 	FTimerHandle PatrolTimer;
 	void PatrolTimerFinished( );
